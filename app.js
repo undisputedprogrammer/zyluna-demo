@@ -33,12 +33,36 @@ function persist() { try { localStorage.setItem('zyluna-bag',JSON.stringify(bag)
 function productMedia(product, className = '') {
   return `<img class="${className}" src="assets/${product.image.replaceAll('%', '%25')}" alt="${product.name}" loading="lazy">`;
 }
-function card(p) { return `<article class="product-card"><div class="product-image"><button class="wish ${wishes.includes(p.id)?'saved':''}" data-wish="${p.id}" aria-label="${wishes.includes(p.id)?'Remove from':'Add to'} wishlist, ${p.name}" aria-pressed="${wishes.includes(p.id)}">${wishes.includes(p.id)?'♥':'♡'}</button><button class="product-open" data-product="${p.id}" aria-label="View ${p.name}">${productMedia(p)}</button><button class="quick-add" data-add="${p.id}" aria-label="Add ${p.name} to bag">+</button></div><div class="product-meta"><p class="product-brand">${p.brand}</p><button class="product-name" data-product="${p.id}">${p.name}</button><p class="product-size">${p.size}</p><span class="product-price">${money(p.price)}</span></div></article>`; }
+const wishlistHeart = `<svg class="wishlist-heart" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3c-.2 0-.4-.1-.6-.2l-7-6.8C.1 9.1 2.8 3.8 7.1 3.8c2 0 3.7 1 4.9 2.6 1.2-1.6 2.9-2.6 4.9-2.6 4.3 0 7 5.3 2.7 9.5l-7 6.8c-.2.1-.4.2-.6.2Z"/></svg>`;
+function card(product) {
+  const saved = wishes.includes(product.id);
+  const wishlistAction = saved ? 'Remove from' : 'Add to';
+  return `<article class="product-card">
+    <div class="product-image">
+      <button class="wish" data-wish="${product.id}" aria-label="${wishlistAction} wishlist, ${product.name}" aria-pressed="${saved}">${wishlistHeart}</button>
+      <button class="product-open" data-product="${product.id}" aria-label="View ${product.name}">${productMedia(product)}</button>
+      <button class="quick-add" data-add="${product.id}" aria-label="Add ${product.name} to bag">+</button>
+    </div>
+    <div class="product-meta">
+      <p class="product-brand">${product.brand}</p>
+      <button class="product-name" data-product="${product.id}">${product.name}</button>
+      <p class="product-size">${product.size}</p>
+      <span class="product-price">${money(product.price)}</span>
+    </div>
+  </article>`;
+}
 function renderFeatured(category = 'Skincare') {
   const featured = products.filter(product => product.category === category).sort((a, b) => Number(Boolean(b.concern)) - Number(Boolean(a.concern))).slice(0, 4);
   $('#beauty-products').innerHTML = featured.map(card).join('');
 }
-function refreshWishes() { document.querySelectorAll('[data-wish]').forEach(button => { const id=Number(button.dataset.wish), saved=wishes.includes(id), p=products.find(p=>p.id===id); button.classList.toggle('saved',saved); button.textContent=saved?'♥':'♡'; button.setAttribute('aria-pressed',String(saved)); button.setAttribute('aria-label',`${saved?'Remove from':'Add to'} wishlist, ${p.name}`); }); }
+function refreshWishes() {
+  document.querySelectorAll('[data-wish]').forEach(button => {
+    const product = products.find(product => product.id === Number(button.dataset.wish));
+    const saved = wishes.includes(product.id);
+    button.setAttribute('aria-pressed', String(saved));
+    button.setAttribute('aria-label', `${saved ? 'Remove from' : 'Add to'} wishlist, ${product.name}`);
+  });
+}
 let toastTimer;
 function toast(text) { $('#toast').textContent=text; $('#toast').classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),2800); }
 function openDialog(dialog) { closeMenu(); if(!dialog.open) dialog.showModal(); document.body.classList.add('dialog-open'); }
