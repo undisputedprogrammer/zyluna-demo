@@ -28,8 +28,6 @@ const savedBag = readStorage('zyluna-bag', []);
 let bag = Array.isArray(savedBag) ? savedBag.filter(item => item && products.some(p => p.id === item.id) && Number.isInteger(item.quantity) && item.quantity > 0).map(item => ({id:item.id,quantity:Math.min(item.quantity,99)})) : [];
 const savedWishes = readStorage('zyluna-wishes', []);
 let wishes = Array.isArray(savedWishes) ? savedWishes.filter(id => products.some(p => p.id === id)) : [];
-let catalogueMode = 'all';
-let catalogueConcern = '';
 const $ = selector => document.querySelector(selector);
 function persist() { try { localStorage.setItem('zyluna-bag',JSON.stringify(bag)); localStorage.setItem('zyluna-wishes',JSON.stringify(wishes)); } catch {} $('#bag-count').textContent = bag.reduce((sum,item) => sum + item.quantity,0); }
 function productMedia(product, className = '') {
@@ -45,8 +43,38 @@ let toastTimer;
 function toast(text) { $('#toast').textContent=text; $('#toast').classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),2800); }
 function openDialog(dialog) { closeMenu(); if(!dialog.open) dialog.showModal(); document.body.classList.add('dialog-open'); }
 document.querySelectorAll('dialog').forEach(dialog=>{dialog.addEventListener('close',()=>{if(!document.querySelector('dialog[open]')) document.body.classList.remove('dialog-open');});dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const box=dialog.getBoundingClientRect();if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)dialog.close();});});
-function browse(category='All',query='',mode='all',concern='') { catalogueMode=mode; catalogueConcern=concern; $('#shop-title').textContent=mode==='wishlist'?'Your beauty wishlist':concern || (category==='Fragrance'?'Perfumes':category==='All'?'Explore beauty':category); $('#shop-filter').value=category; $('#shop-search').value=query; $('#shop-sort').value='featured'; renderCatalogue(); openDialog($('#shop-dialog')); }
-function renderCatalogue() { const query=$('#shop-search').value.trim().toLowerCase(), category=$('#shop-filter').value, sort=$('#shop-sort').value; let list=products.filter(p=>(!catalogueConcern||p.concern===catalogueConcern)&&(catalogueMode!=='wishlist'||wishes.includes(p.id))&&(category==='All'||p.category===category)&&`${p.name} ${p.brand} ${p.category} ${p.size} ${p.category==='Fragrance'?'perfume':''}`.toLowerCase().includes(query)); if(sort==='featured')list.sort((a,b)=>categoryPriority.indexOf(a.category)-categoryPriority.indexOf(b.category));else list.sort((a,b)=>sort==='low'?a.price-b.price:b.price-a.price); $('#shop-products').innerHTML=list.length?list.map(card).join(''):`<div class="empty-state">${catalogueMode==='wishlist'?'Your saved favourites will appear here. Tap a heart on any product to start.':'No products match this search. Try another brand or category.'}<br><button class="button" data-browse="All">Explore all products <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></button></div>`; }
+function browse(category = 'All', query = '', { brand, concern, focus } = {}) {
+  const url = new URL('products.html', location.href);
+  if (category !== 'All') url.searchParams.set('category', category);
+  if (query) url.searchParams.set('q', query);
+  if (brand) url.searchParams.set('brand', brand);
+  if (concern) url.searchParams.set('concern', concern);
+  if (focus) url.searchParams.set('focus', focus);
+  location.assign(url);
+}
+
+function renderWishlist() {
+  const query = $('#shop-search').value.trim().toLowerCase();
+  const category = $('#shop-filter').value;
+  const sort = $('#shop-sort').value;
+  const list = products.filter(product => wishes.includes(product.id)
+    && (category === 'All' || product.category === category)
+    && `${product.name} ${product.brand} ${product.category} ${product.size} ${product.category === 'Fragrance' ? 'perfume' : ''}`.toLowerCase().includes(query));
+  if (sort === 'featured') list.sort((a, b) => categoryPriority.indexOf(a.category) - categoryPriority.indexOf(b.category));
+  else list.sort((a, b) => sort === 'low' ? a.price - b.price : b.price - a.price);
+  const emptyMessage = wishes.length ? 'No saved products match these filters.' : 'Tap a heart on any product to save it here.';
+  $('#shop-products').innerHTML = list.length ? list.map(card).join('')
+    : `<div class="empty-state">${emptyMessage}<br><a class="button" href="products.html">Explore all products</a></div>`;
+}
+
+function openWishlist() {
+  $('#shop-title').textContent = 'Your beauty wishlist';
+  $('#shop-filter').value = 'All';
+  $('#shop-search').value = '';
+  $('#shop-sort').value = 'featured';
+  renderWishlist();
+  openDialog($('#shop-dialog'));
+}
 function addToBag(id) { const item=bag.find(item=>item.id===id); if(item&&item.quantity>=99){toast('You’ve reached the preview quantity limit.');return;} if(item)item.quantity++;else bag.push({id,quantity:1});persist();renderBag();toast('A little beauty, added to your bag.'); }
 function renderBag() { $('#bag-items').innerHTML=bag.length?bag.map(item=>{const p=products.find(p=>p.id===item.id);return `<div class="bag-line">${productMedia(p, 'bag-image')}<div><p class="product-brand">${p.brand}</p><h3>${p.name}</h3><p>${money(p.price)}</p><div class="quantity"><button data-quantity="${p.id}" data-change="-1" aria-label="Decrease ${p.name} quantity">−</button><span>${item.quantity}</span><button data-quantity="${p.id}" data-change="1" aria-label="Increase ${p.name} quantity">+</button></div></div><button class="remove-item" data-remove="${p.id}" aria-label="Remove ${p.name}">Remove</button></div>`;}).join(''):'<div class="empty-state">Your next favourite belongs here.<br><button class="button" data-continue>Explore the collection <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></button></div>'; $('#bag-summary').innerHTML=bag.length?`<div class="bag-total"><span>Subtotal</span><strong>${money(bag.reduce((sum,item)=>sum+products.find(p=>p.id===item.id).price*item.quantity,0))}</strong></div><p class="sample-note">This is a shopping preview. Sample prices are shown in KWD. Orders and payments are not enabled.</p><button class="button" data-continue style="width:100%;margin-top:25px">Continue exploring <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></button>`:''; }
 function productDetail(id) { const p=products.find(p=>p.id===id); $('#info-content').innerHTML=`${productMedia(p, 'detail-image')}<p class="eyebrow">${p.brand} · ${p.category}</p><h2>${p.name}</h2><p>${p.size}</p><h3>${money(p.price)}</h3><p>Discover this product in the Zyluna collection preview. Final product details, ingredients, sizes and availability will be confirmed with the live catalogue.</p><button class="button" data-add="${p.id}">Add to beauty bag +</button><p class="sample-note">Illustrative listing · Sample price</p>`;openDialog($('#info-dialog')); }
@@ -83,7 +111,7 @@ function showMenu(category) {
         <span class="mega-promo-copy"><small>THE ${category.toUpperCase()} EDIT</small><strong>A new favourite<br>awaits.</strong><span>Discover the edit <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></span></span>
       </button>
     </div>
-    <div class="mega-bottom"><span>Thoughtfully curated. Beautifully yours.</span><a href="#help" data-close-menu>Need a little guidance? Start here <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></a></div>`;
+    <div class="mega-bottom"><span>Thoughtfully curated. Beautifully yours.</span><a href="index.html#help" data-close-menu>Need a little guidance? Start here <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></a></div>`;
   $('#mega-menu').hidden = false;
   document.querySelectorAll('[data-menu]').forEach(button => button.setAttribute('aria-expanded', String(button.dataset.menu === category)));
 }
@@ -114,32 +142,49 @@ document.addEventListener('click',event=>{const target=event.target.closest('but
  if(target.dataset.menu) { if (activeMenu === target.dataset.menu && !hoverMenu.matches) closeMenu(); else showMenu(target.dataset.menu); }
  if(target.classList.contains('mobile-menu')){if(activeMenu)closeMenu();else showMenu('Skincare');target.setAttribute('aria-expanded',String(!$('#mega-menu').hidden));}
  if(target.dataset.browse)browse(target.dataset.browse,target.dataset.query || '');
- if(target.dataset.brand)browse('All',target.dataset.brand);
+ if(target.dataset.brand)browse('All', '', { brand: target.dataset.brand });
  if(target.dataset.filter){document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('active',b===target));renderFeatured(target.dataset.filter);}
  if(target.dataset.add)addToBag(Number(target.dataset.add));
  if(target.dataset.product)productDetail(Number(target.dataset.product));
- if(target.dataset.wish){const id=Number(target.dataset.wish);wishes=wishes.includes(id)?wishes.filter(value=>value!==id):[...wishes,id];persist();refreshWishes();if(catalogueMode==='wishlist'&&$('#shop-dialog').open)renderCatalogue();}
+ if(target.dataset.wish){const id=Number(target.dataset.wish);wishes=wishes.includes(id)?wishes.filter(value=>value!==id):[...wishes,id];persist();refreshWishes();if($('#shop-dialog').open)renderWishlist();}
  if(target.dataset.quantity){const item=bag.find(i=>i.id===Number(target.dataset.quantity));item.quantity=Math.min(99,item.quantity+Number(target.dataset.change));bag=bag.filter(i=>i.quantity>0);persist();renderBag();}
  if(target.dataset.remove){bag=bag.filter(i=>i.id!==Number(target.dataset.remove));persist();renderBag();}
  if(target.hasAttribute('data-continue')){$('#bag-dialog').close();browse();}
  if(target.dataset.guide)showGuide(target.dataset.guide);
  if(target.dataset.guideShop){$('#info-dialog').close();browse(target.dataset.guideShop);}
- if(target.dataset.concern) browse('Skincare', '', 'all', target.dataset.concern);
+ if(target.dataset.concern) browse('Skincare', '', { concern: target.dataset.concern });
  if(target.dataset.info){$('#info-content').innerHTML=target.dataset.info==='privacy'?'<p class="eyebrow">YOUR PRIVACY</p><h2>A little transparency.</h2><p>This preview keeps shopping bag and wishlist selections in your browser’s local storage. The signup demonstration does not send or save your email address. Google Fonts may receive a request from your browser to load the typefaces.</p><p>The live store’s full privacy policy will be available before launch.</p>':'<p class="eyebrow">HERE TO HELP</p><h2>Delivery & returns.</h2><p>Shipping regions, delivery estimates, contact details and return conditions will be confirmed by Zyluna before the store launches.</p><p>This preview does not accept orders or payments.</p>';openDialog($('#info-dialog'));}
- if(target.dataset.menuLink){const label=target.dataset.menuLink; if(Object.values(menuGroups.Skincare['Shop by concern']).includes(label))browse('Skincare','','all',label);else if(['CHANEL','DIOR','CALVIN KLEIN'].includes(label))browse('Fragrance',label);else if(label.includes('guide')||label.includes('signature'))showGuide('scent');else if(label.includes('routine'))showGuide('routine');else { const query = /shop all|essentials|discoveries|everyday|care$/.test(label.toLowerCase()) ? '' : ({'Cleansers':'cleanser','Moisturisers':'moisturizer','Serums':'serum','Face powder':'powder','Body lotion':'lotion','Body wash':'body wash','Lipstick':'lipstick','Mascara':'mascara','Eyeshadow':'eyeshadow'}[label] || label); browse(target.dataset.category,query); }}
+ if(target.dataset.menuLink){const label=target.dataset.menuLink; if(Object.values(menuGroups.Skincare['Shop by concern']).includes(label))browse('Skincare', '', { concern: label });else if(['CHANEL','DIOR','CALVIN KLEIN'].includes(label))browse('Fragrance', '', { brand: label });else if(label.includes('guide')||label.includes('signature'))showGuide('scent');else if(label.includes('routine'))showGuide('routine');else { const query = /shop all|essentials|discoveries|everyday|care$/.test(label.toLowerCase()) ? '' : ({'Cleansers':'cleanser','Moisturisers':'moisturizer','Serums':'serum','Face powder':'powder','Body lotion':'lotion','Body wash':'body wash','Lipstick':'lipstick','Mascara':'mascara','Eyeshadow':'eyeshadow'}[label] || label); browse(target.dataset.category,query); }}
 });
 document.addEventListener('click',event=>{if(!event.target.closest('.header'))closeMenu();});
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&activeMenu){const trigger=document.querySelector(`[data-menu="${activeMenu}"]`);closeMenu();trigger?.focus();}});
-$('.search-trigger').addEventListener('click',()=>{browse();$('#shop-search').focus();});
-$('#wishlist-button').addEventListener('click',()=>browse('All','','wishlist'));
-$('#bag-button').addEventListener('click',()=>{renderBag();openDialog($('#bag-dialog'));});
-$('#shop-search').addEventListener('input',renderCatalogue);$('#shop-filter').addEventListener('change', () => {
-  catalogueConcern = '';
-  $('#shop-title').textContent = catalogueMode === 'wishlist' ? 'Your beauty wishlist' : 'Explore beauty';
-  renderCatalogue();
-});$('#shop-sort').addEventListener('change',renderCatalogue);
-$('#newsletter-form').addEventListener('submit',event=>{event.preventDefault();$('#newsletter-message').textContent='You’ve tried the signup preview. The mailing list opens with the store.';$('#newsletter-form').reset();});
-$('#year').textContent=new Date().getFullYear();persist();renderFeatured();$('#fragrance-products').innerHTML=products.filter(p=>p.category==='Fragrance').sort((a,b)=>Number(b.id===25)-Number(a.id===25)).slice(0,3).map(card).join('');
+$('.search-trigger').addEventListener('click', () => {
+  const search = $('#catalogue-search');
+  if (!search) {
+    browse('All', '', { focus: 'search' });
+    return;
+  }
+  const toggle = $('#catalogue-toggle');
+  if (matchMedia('(max-width: 760px)').matches && toggle.getAttribute('aria-expanded') === 'false') toggle.click();
+  search.focus();
+});
+$('#wishlist-button').addEventListener('click', openWishlist);
+$('#bag-button').addEventListener('click', () => { renderBag(); openDialog($('#bag-dialog')); });
+$('#shop-search').addEventListener('input', renderWishlist);
+$('#shop-filter').addEventListener('change', renderWishlist);
+$('#shop-sort').addEventListener('change', renderWishlist);
+$('#newsletter-form')?.addEventListener('submit', event => {
+  event.preventDefault();
+  $('#newsletter-message').textContent = 'You’ve tried the signup preview. The mailing list opens with the store.';
+  $('#newsletter-form').reset();
+});
+$('#year').textContent = new Date().getFullYear();
+persist();
+if ($('#beauty-products')) {
+  renderFeatured();
+  $('#fragrance-products').innerHTML = products.filter(product => product.category === 'Fragrance')
+    .sort((a, b) => Number(b.id === 25) - Number(a.id === 25)).slice(0, 3).map(card).join('');
+}
 if('IntersectionObserver' in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.body.classList.add('js-motion');const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target);}}),{threshold:.08});document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));}
 
 // Move lettering along the same curve as the ribbon, with a seamless repeated phrase.
@@ -160,18 +205,21 @@ function updateWaveMotion() {
   previousWaveTime = 0;
   if (!reducedMotion.matches && !document.hidden) waveFrame = requestAnimationFrame(animateWave);
 }
-$('.wave-marquee').addEventListener('pointerenter', () => { wavePaused = true; });
-$('.wave-marquee').addEventListener('pointerleave', () => { wavePaused = false; });
-reducedMotion.addEventListener('change', updateWaveMotion);
-document.addEventListener('visibilitychange', updateWaveMotion);
-updateWaveMotion();
+if (waveText) {
+  $('.wave-marquee').addEventListener('pointerenter', () => { wavePaused = true; });
+  $('.wave-marquee').addEventListener('pointerleave', () => { wavePaused = false; });
+  reducedMotion.addEventListener('change', updateWaveMotion);
+  document.addEventListener('visibilitychange', updateWaveMotion);
+  updateWaveMotion();
+}
 
 const homeSelections = {
   '#trending-products': [25, 17, 20, 18],
   '#bestsellers-products': [5, 16, 7, 23],
 };
 for (const [selector, ids] of Object.entries(homeSelections)) {
-  $(selector).innerHTML = ids.map(id => card(products.find(product => product.id === id))).join('');
+  const grid = $(selector);
+  if (grid) grid.innerHTML = ids.map(id => card(products.find(product => product.id === id))).join('');
 }
 
 document.querySelectorAll('.carousel-controls').forEach(controls => {
