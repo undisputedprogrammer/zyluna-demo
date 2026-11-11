@@ -166,6 +166,14 @@ reducedMotion.addEventListener('change', updateWaveMotion);
 document.addEventListener('visibilitychange', updateWaveMotion);
 updateWaveMotion();
 
+const homeSelections = {
+  '#trending-products': [25, 17, 20, 18],
+  '#bestsellers-products': [5, 16, 7, 23],
+};
+for (const [selector, ids] of Object.entries(homeSelections)) {
+  $(selector).innerHTML = ids.map(id => card(products.find(product => product.id === id))).join('');
+}
+
 document.querySelectorAll('.carousel-controls').forEach(controls => {
   const [previous, next] = controls.querySelectorAll('button');
   const track = document.getElementById(next.dataset.carousel);
