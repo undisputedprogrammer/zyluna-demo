@@ -81,3 +81,94 @@ body{overflow-x:clip}.brand-logo-original{width:90px;height:90px;border-radius:5
 
 @media(max-width:760px){.announcement>a{display:none}}
 
+/* Kuwait storefront and product discovery */
+:root{--rose:#99545e;--rose-dark:#6e303f;--berry:#73263d;--coral:#e39388;--paper:#fffaf6}
+.announcement,.announcement>a{background:var(--berry)}
+.hero--reference{background:radial-gradient(ellipse at 9% 73%,#f9c8bd 0%,transparent 48%),radial-gradient(ellipse at 91% 61%,#f7ddaa 0%,transparent 47%),var(--paper)}
+.hero--reference h1{font-size:clamp(50px,5.6vw,87px)}
+.hero--reference h1 em{font-size:.72em;display:inline-block}
+.hero--reference .hero-arch{background:linear-gradient(145deg,#edaaa0,#ab5e70 80%)}
+.hero--reference .hero-ctas{flex-wrap:wrap;gap:12px 20px}
+.hero--reference .button{background:var(--berry)}
+.hero--reference .button:hover{background:var(--rose-dark)}
+.wave-marquee{background:var(--paper)}
+.wave-band{stroke:#b66375}
+.categories{background:#fff3ec}
+.beauty-section{background:#fffcf9}
+.concern-section{background:#fcf0f4}
+.brands-section{background:#fff2e5}
+.chooser-section .section-heading,.concern-section .section-heading,.categories .section-heading{align-items:center}
+.discovery-grid{display:grid;gap:16px}
+.category-tiles{grid-template-columns:repeat(5,minmax(0,1fr))}
+.concern-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}
+.chooser-tiles{grid-template-columns:repeat(6,minmax(0,1fr))}
+.art-cream{--art-x:0%;--art-y:0%;--art-color:#9bcbf0;--art-ink:#102f59}
+.art-serum{--art-x:50%;--art-y:0%;--art-color:#ffc19a;--art-ink:#66250b}
+.art-smooth{--art-x:100%;--art-y:0%;--art-color:#d5c1ec;--art-ink:#432356}
+.art-spf{--art-x:0%;--art-y:100%;--art-color:#ffe17b;--art-ink:#563c00}
+.art-perfume{--art-x:50%;--art-y:100%;--art-color:#ffa6b0;--art-ink:#6a1839}
+.art-cleanser{--art-x:100%;--art-y:100%;--art-color:#9ee3d6;--art-ink:#104941}
+.art-body{--art-color:#bbdeff;--art-ink:#193c65;--tile-image:url("assets/olay-ultra-moisture-shea-butter-body-wash.webp")}
+.art-makeup{--art-color:#f6c9dd;--art-ink:#6e2646;--tile-image:url("assets/red-lipstick.webp")}
+.discovery-tile,.product-art,.trend-bright::after{
+  background-color:var(--art-color);
+  background-image:var(--tile-image,url("assets/skincare-perfume-studio.png"));
+  background-position:var(--art-x) var(--art-y);
+  background-size:300% 200%;
+  background-repeat:no-repeat;
+}
+.art-body,.art-makeup{background-position:110% 95%;background-size:76%}
+.discovery-tile{
+  aspect-ratio:1;position:relative;border-radius:20px;overflow:hidden;text-align:left;color:var(--art-ink);
+  padding:clamp(14px,1.5vw,23px);display:flex;flex-direction:column;align-items:flex-start;gap:5px;
+  transition:transform .2s,box-shadow .2s;
+}
+.discovery-tile:hover{transform:translateY(-3px);box-shadow:0 7px 20px #62344420}
+.discovery-tile:focus-visible{outline-offset:-4px}
+.tile-title,.tile-detail{position:relative;z-index:1}
+.tile-title{font-weight:700;font-size:clamp(13px,1.4vw,19px);line-height:1.2;max-width:85%}
+.tile-detail{font-size:12px;line-height:1.25;max-width:75%}
+.concern-tiles .tile-title{font-family:var(--serif);font-size:clamp(19px,2.2vw,29px);font-weight:500}
+.tile-arrow{margin-top:auto;display:grid;place-items:center;border:1.5px solid currentColor;border-radius:50%;height:30px;width:30px;background:#fff9;transition:transform .2s}
+.tile-arrow svg,.carousel-controls svg{height:16px;width:16px;stroke-linecap:round;stroke-linejoin:round}
+.discovery-tile:hover .tile-arrow{transform:translateX(3px)}
+.chooser-guides{display:flex;gap:24px;flex-wrap:wrap;margin-top:20px}
+.carousel-controls{display:none;flex-shrink:0;gap:8px}
+.carousel-controls button{display:grid;place-items:center;height:32px;width:32px;border:1px solid #9c58697a;border-radius:50%;color:var(--berry)}
+.carousel-controls button:first-child svg{transform:rotate(180deg)}
+.carousel-controls button:disabled{opacity:.35;cursor:default}
+.product-art{display:block;width:100%;height:100%}
+.product-image:has(.product-art)>.product-open{padding:0}
+.product-image:has(.product-art){border-radius:14px}
+.product-image .wish{background:#fffdf7e8}
+.product-art.detail-image{width:min(300px,100%);height:auto;aspect-ratio:1;margin:0 auto 20px;border-radius:14px;mix-blend-mode:normal}
+.product-art.bag-image{width:75px;height:75px;border-radius:8px;flex:none}
+.fragrance-products .product-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.fragrance-products .product-image{background:#f7ddeb;border-radius:13px}
+.fragrance-products .product-card:nth-child(2) .product-image{background:#ffe3b4}
+.fragrance-products .product-card:nth-child(3) .product-image{background:#dbeef0}
+.fragrance-products .product-open{padding:13px}
+.trend-bright{background:var(--art-color);color:var(--art-ink);height:270px;border-radius:22px}
+.trend-bright::after{content:'';position:absolute;right:0;bottom:0;height:100%;width:50%;transition:transform .35s}
+.trend-bright:hover::after{transform:scale(1.035)}
+.trend-bright>div{z-index:1;max-width:55%}
+.trend-bright>div>span{border-color:currentColor}
+@media(max-width:760px){
+  html,body,body *{scrollbar-width:none}
+  html::-webkit-scrollbar,body::-webkit-scrollbar,body *::-webkit-scrollbar{display:none;width:0;height:0}
+  .hero--reference h1{font-size:clamp(42px,14vw,62px)}
+  .discovery-grid{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;padding:4px 2px 6px}
+  .discovery-tile{flex:0 0 clamp(132px,41vw,185px);scroll-snap-align:start;border-radius:17px}
+  .concern-tiles .discovery-tile{flex-basis:clamp(185px,62vw,245px)}
+  .carousel-controls{display:flex}
+  .tile-title{font-size:16px}
+  .concern-tiles .tile-title{font-size:23px}
+  .chooser-section .section-heading h2,.concern-section .section-heading h2{font-size:clamp(24px,6vw,35px)}
+  .fragrance-products .product-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain}
+  .fragrance-products .product-card{flex:0 0 47%;min-width:135px;scroll-snap-align:start}
+  .fragrance-products .product-image{height:185px}
+  .trend-bright{height:210px}
+  .trend-bright>div{left:18px;bottom:22px}
+  .trend-bright h3{font-size:24px}
+}
+.fragrance-products,.fragrance-story{min-width:0}
