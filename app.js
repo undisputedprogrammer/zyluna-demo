@@ -9,15 +9,20 @@ const products = [
   {id:8,brand:'VASELINE',name:'Body & Face Lotion',category:'Skincare',price:2.900,size:'Daily care · Lotion',image:'vaseline-men-body-and-face-lotion.webp',badge:'EVERYDAY CARE'},
   {id:9,brand:'BEAUTY EDIT',name:'Soft Finish Face Powder',category:'Makeup',price:3.750,size:'Face · Finishing powder',image:'powder-canister.webp',badge:'THE FINISHING TOUCH'},
   {id:10,brand:'BEAUTY EDIT',name:'The Classic Red Nail Polish',category:'Makeup',price:2.250,size:'Classic red · Nail colour',image:'red-nail-polish.webp',badge:'SMALL JOYS'},
-  {id:11,brand:'SKINCARE EDIT',name:'Hydrating Face Cream',category:'Skincare',price:8.500,size:'Face moisturiser',art:'cream',concern:'Dryness'},
-  {id:12,brand:'SKINCARE EDIT',name:'Vitamin C Face Serum',category:'Skincare',price:10.750,size:'Brightening serum',art:'serum',concern:'Dullness'},
-  {id:13,brand:'SKINCARE EDIT',name:'Smoothing Face Serum',category:'Skincare',price:9.500,size:'Face serum',art:'smooth',concern:'Uneven texture'},
-  {id:14,brand:'SKINCARE EDIT',name:'Daily Face Sunscreen',category:'Skincare',price:7.250,size:'Suncare',art:'spf',concern:'Daily protection'},
-  {id:15,brand:'SKINCARE EDIT',name:'Gentle Face Cleanser',category:'Skincare',price:5.750,size:'Face wash',art:'cleanser'}
+  {id:16,brand:'EARTH RHYTHM',name:'Rose PDRN Collagen Barrier Repair Capsule Cream',category:'Skincare',price:8.500,size:'50 g · Face moisturizer',image:'earth-rhythm-cream.jpg',concern:'Dryness'},
+  {id:17,brand:'WISHCARE',name:'Super Bright Vitamin C16 Serum',category:'Skincare',price:10.750,size:'30 ml · Face serum',image:'wishcare-c16.png',concern:'Dullness'},
+  {id:18,brand:'THE ORDINARY',name:'Lactic Acid 5% + HA',category:'Skincare',price:9.500,size:'30 ml · Exfoliating serum',image:'ordinary-lactic.jpg',concern:'Uneven texture'},
+  {id:19,brand:'WISHCARE',name:'Vitamin C Pure Glow Milk Sunscreen',category:'Skincare',price:7.250,size:'SPF 50+',image:'wishcare-spf.jpg',concern:'Daily protection'},
+  {id:20,brand:'ORIBE',name:'Gold Lust Repair & Restore Shampoo',category:'Hair care',price:17.500,size:'Shampoo',image:'oribe-shampoo.jpg'},
+  {id:21,brand:'LAKMÉ',name:'9 to 5 Eyeconic Kajal Twin Pack',category:'Makeup',price:3.500,size:'Deep Black',image:'lakme-kajal.jpg'},
+  {id:22,brand:'LAKMÉ',name:'Cushion Matte Lipstick',category:'Makeup',price:4.500,size:'Red Royale',image:'lakme-lips.jpg'},
+  {id:23,brand:'PLUM',name:'Vanilla Vibes Body Wash',category:'Body care',price:4.750,size:'240 ml · Shower gel',image:'plum-body-wash.png'},
+  {id:24,brand:'AVEENO',name:'Baby Daily Moisture Lotion',category:'Baby care',price:6.250,size:'532 ml · Baby lotion',image:'aveeno-baby.webp'},
+  {id:25,brand:'DIOR',name:'Miss Dior Blooming Bouquet',category:'Fragrance',price:42.500,size:'Eau de toilette',image:'miss-dior.jpg'}
 ];
 const kwd = new Intl.NumberFormat('en-KW', { style: 'currency', currency: 'KWD', currencyDisplay: 'code' });
 const money = value => kwd.format(value);
-const categoryPriority = ['Skincare', 'Fragrance', 'Body care', 'Makeup'];
+const categoryPriority = ['Skincare', 'Fragrance', 'Body care', 'Hair care', 'Baby care', 'Makeup'];
 function readStorage(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } }
 const savedBag = readStorage('zyluna-bag', []);
 let bag = Array.isArray(savedBag) ? savedBag.filter(item => item && products.some(p => p.id === item.id) && Number.isInteger(item.quantity) && item.quantity > 0).map(item => ({id:item.id,quantity:Math.min(item.quantity,99)})) : [];
@@ -28,12 +33,11 @@ let catalogueConcern = '';
 const $ = selector => document.querySelector(selector);
 function persist() { try { localStorage.setItem('zyluna-bag',JSON.stringify(bag)); localStorage.setItem('zyluna-wishes',JSON.stringify(wishes)); } catch {} $('#bag-count').textContent = bag.reduce((sum,item) => sum + item.quantity,0); }
 function productMedia(product, className = '') {
-  if (product.art) return `<span class="product-art art-${product.art} ${className}" role="img" aria-label="Illustrative ${product.name}"></span>`;
   return `<img class="${className}" src="assets/${product.image.replaceAll('%', '%25')}" alt="${product.name}" loading="lazy">`;
 }
 function card(p) { return `<article class="product-card"><div class="product-image"><button class="wish ${wishes.includes(p.id)?'saved':''}" data-wish="${p.id}" aria-label="${wishes.includes(p.id)?'Remove from':'Add to'} wishlist, ${p.name}" aria-pressed="${wishes.includes(p.id)}">${wishes.includes(p.id)?'♥':'♡'}</button><button class="product-open" data-product="${p.id}" aria-label="View ${p.name}">${productMedia(p)}</button><button class="quick-add" data-add="${p.id}" aria-label="Add ${p.name} to bag">+</button></div><div class="product-meta"><p class="product-brand">${p.brand}</p><button class="product-name" data-product="${p.id}">${p.name}</button><p class="product-size">${p.size}</p><span class="product-price">${money(p.price)}</span></div></article>`; }
 function renderFeatured(category = 'Skincare') {
-  const featured = products.filter(product => product.category === category).sort((a, b) => Number(Boolean(b.art)) - Number(Boolean(a.art))).slice(0, 4);
+  const featured = products.filter(product => product.category === category).sort((a, b) => Number(Boolean(b.concern)) - Number(Boolean(a.concern))).slice(0, 4);
   $('#beauty-products').innerHTML = featured.map(card).join('');
 }
 function refreshWishes() { document.querySelectorAll('[data-wish]').forEach(button => { const id=Number(button.dataset.wish), saved=wishes.includes(id), p=products.find(p=>p.id===id); button.classList.toggle('saved',saved); button.textContent=saved?'♥':'♡'; button.setAttribute('aria-pressed',String(saved)); button.setAttribute('aria-label',`${saved?'Remove from':'Add to'} wishlist, ${p.name}`); }); }
@@ -122,7 +126,7 @@ document.addEventListener('click',event=>{const target=event.target.closest('but
  if(target.dataset.guideShop){$('#info-dialog').close();browse(target.dataset.guideShop);}
  if(target.dataset.concern) browse('Skincare', '', 'all', target.dataset.concern);
  if(target.dataset.info){$('#info-content').innerHTML=target.dataset.info==='privacy'?'<p class="eyebrow">YOUR PRIVACY</p><h2>A little transparency.</h2><p>This preview keeps shopping bag and wishlist selections in your browser’s local storage. The signup demonstration does not send or save your email address. Google Fonts may receive a request from your browser to load the typefaces.</p><p>The live store’s full privacy policy will be available before launch.</p>':'<p class="eyebrow">HERE TO HELP</p><h2>Delivery & returns.</h2><p>Shipping regions, delivery estimates, contact details and return conditions will be confirmed by Zyluna before the store launches.</p><p>This preview does not accept orders or payments.</p>';openDialog($('#info-dialog'));}
- if(target.dataset.menuLink){const label=target.dataset.menuLink; if(Object.values(menuGroups.Skincare['Shop by concern']).includes(label))browse('Skincare','','all',label);else if(['CHANEL','DIOR','CALVIN KLEIN'].includes(label))browse('Fragrance',label);else if(label.includes('guide')||label.includes('signature'))showGuide('scent');else if(label.includes('routine'))showGuide('routine');else { const query = /shop all|essentials|discoveries|everyday|care$/.test(label.toLowerCase()) ? '' : ({'Cleansers':'cleanser','Moisturisers':'cream','Serums':'serum','Face powder':'powder','Body lotion':'lotion','Body wash':'body wash','Lipstick':'lipstick','Mascara':'mascara','Eyeshadow':'eyeshadow'}[label] || label); browse(target.dataset.category,query); }}
+ if(target.dataset.menuLink){const label=target.dataset.menuLink; if(Object.values(menuGroups.Skincare['Shop by concern']).includes(label))browse('Skincare','','all',label);else if(['CHANEL','DIOR','CALVIN KLEIN'].includes(label))browse('Fragrance',label);else if(label.includes('guide')||label.includes('signature'))showGuide('scent');else if(label.includes('routine'))showGuide('routine');else { const query = /shop all|essentials|discoveries|everyday|care$/.test(label.toLowerCase()) ? '' : ({'Cleansers':'cleanser','Moisturisers':'moisturizer','Serums':'serum','Face powder':'powder','Body lotion':'lotion','Body wash':'body wash','Lipstick':'lipstick','Mascara':'mascara','Eyeshadow':'eyeshadow'}[label] || label); browse(target.dataset.category,query); }}
 });
 document.addEventListener('click',event=>{if(!event.target.closest('.header'))closeMenu();});
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&activeMenu){const trigger=document.querySelector(`[data-menu="${activeMenu}"]`);closeMenu();trigger?.focus();}});
@@ -135,7 +139,7 @@ $('#shop-search').addEventListener('input',renderCatalogue);$('#shop-filter').ad
   renderCatalogue();
 });$('#shop-sort').addEventListener('change',renderCatalogue);
 $('#newsletter-form').addEventListener('submit',event=>{event.preventDefault();$('#newsletter-message').textContent='You’ve tried the signup preview. The mailing list opens with the store.';$('#newsletter-form').reset();});
-$('#year').textContent=new Date().getFullYear();persist();renderFeatured();$('#fragrance-products').innerHTML=products.filter(p=>p.category==='Fragrance').map(card).join('');
+$('#year').textContent=new Date().getFullYear();persist();renderFeatured();$('#fragrance-products').innerHTML=products.filter(p=>p.category==='Fragrance').sort((a,b)=>Number(b.id===25)-Number(a.id===25)).slice(0,3).map(card).join('');
 if('IntersectionObserver' in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.body.classList.add('js-motion');const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target);}}),{threshold:.08});document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));}
 
 // Move lettering along the same curve as the ribbon, with a seamless repeated phrase.

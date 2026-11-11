@@ -102,22 +102,6 @@ body{overflow-x:clip}.brand-logo-original{width:90px;height:90px;border-radius:5
 .category-tiles{grid-template-columns:repeat(5,minmax(0,1fr))}
 .concern-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}
 .chooser-tiles{grid-template-columns:repeat(6,minmax(0,1fr))}
-.art-cream{--art-x:0%;--art-y:0%;--art-color:#9bcbf0;--art-ink:#102f59}
-.art-serum{--art-x:50%;--art-y:0%;--art-color:#ffc19a;--art-ink:#66250b}
-.art-smooth{--art-x:100%;--art-y:0%;--art-color:#d5c1ec;--art-ink:#432356}
-.art-spf{--art-x:0%;--art-y:100%;--art-color:#ffe17b;--art-ink:#563c00}
-.art-perfume{--art-x:50%;--art-y:100%;--art-color:#ffa6b0;--art-ink:#6a1839}
-.art-cleanser{--art-x:100%;--art-y:100%;--art-color:#9ee3d6;--art-ink:#104941}
-.art-body{--art-color:#bbdeff;--art-ink:#193c65;--tile-image:url("assets/olay-ultra-moisture-shea-butter-body-wash.webp")}
-.art-makeup{--art-color:#f6c9dd;--art-ink:#6e2646;--tile-image:url("assets/red-lipstick.webp")}
-.discovery-tile,.product-art,.trend-bright::after{
-  background-color:var(--art-color);
-  background-image:var(--tile-image,url("assets/skincare-perfume-studio.png"));
-  background-position:var(--art-x) var(--art-y);
-  background-size:300% 200%;
-  background-repeat:no-repeat;
-}
-.art-body,.art-makeup{background-position:110% 95%;background-size:76%}
 .discovery-tile{
   aspect-ratio:1;position:relative;border-radius:20px;overflow:hidden;text-align:left;color:var(--art-ink);
   padding:clamp(14px,1.5vw,23px);display:flex;flex-direction:column;align-items:flex-start;gap:5px;
@@ -137,22 +121,12 @@ body{overflow-x:clip}.brand-logo-original{width:90px;height:90px;border-radius:5
 .carousel-controls button{display:grid;place-items:center;height:32px;width:32px;border:1px solid #9c58697a;border-radius:50%;color:var(--berry)}
 .carousel-controls button:first-child svg{transform:rotate(180deg)}
 .carousel-controls button:disabled{opacity:.35;cursor:default}
-.product-art{display:block;width:100%;height:100%}
-.product-image:has(.product-art)>.product-open{padding:0}
-.product-image:has(.product-art){border-radius:14px}
 .product-image .wish{background:#fffdf7e8}
-.product-art.detail-image{width:min(300px,100%);height:auto;aspect-ratio:1;margin:0 auto 20px;border-radius:14px;mix-blend-mode:normal}
-.product-art.bag-image{width:75px;height:75px;border-radius:8px;flex:none}
 .fragrance-products .product-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .fragrance-products .product-image{background:#f7ddeb;border-radius:13px}
 .fragrance-products .product-card:nth-child(2) .product-image{background:#ffe3b4}
 .fragrance-products .product-card:nth-child(3) .product-image{background:#dbeef0}
 .fragrance-products .product-open{padding:13px}
-.trend-bright{background:var(--art-color);color:var(--art-ink);height:270px;border-radius:22px}
-.trend-bright::after{content:'';position:absolute;right:0;bottom:0;height:100%;width:50%;transition:transform .35s}
-.trend-bright:hover::after{transform:scale(1.035)}
-.trend-bright>div{z-index:1;max-width:55%}
-.trend-bright>div>span{border-color:currentColor}
 @media(max-width:760px){
   html,body,body *{scrollbar-width:none}
   html::-webkit-scrollbar,body::-webkit-scrollbar,body *::-webkit-scrollbar{display:none;width:0;height:0}
@@ -167,8 +141,92 @@ body{overflow-x:clip}.brand-logo-original{width:90px;height:90px;border-radius:5
   .fragrance-products .product-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain}
   .fragrance-products .product-card{flex:0 0 47%;min-width:135px;scroll-snap-align:start}
   .fragrance-products .product-image{height:185px}
-  .trend-bright{height:210px}
-  .trend-bright>div{left:18px;bottom:22px}
-  .trend-bright h3{font-size:24px}
 }
 .fragrance-products,.fragrance-story{min-width:0}
+
+/* Branded product photography for category and concern tiles. */
+.photo-lips{--tile-color:#ffc6da;--tile-light:#ffe6ef;--art-ink:#8b214c}
+.photo-cream{--tile-color:#ffd1ad;--tile-light:#ffe9d7;--art-ink:#783b20}
+.photo-shampoo{--tile-color:#b2d7f5;--tile-light:#e0f1fe;--art-ink:#174875}
+.photo-perfume{--tile-color:#ffbdc7;--tile-light:#ffe4e4;--art-ink:#8f2444}
+.photo-kajal{--tile-color:#d8dce6;--tile-light:#f1f3f9;--art-ink:#303442}
+.photo-serum{--tile-color:#d9c2f2;--tile-light:#f1e7fb;--art-ink:#503176}
+.photo-vitamin{--tile-color:#ffba80;--tile-light:#ffe6cd;--art-ink:#713710}
+.photo-spf{--tile-color:#ffdb78;--tile-light:#fff0bc;--art-ink:#694700}
+.photo-body{--tile-color:#a8e3df;--tile-light:#def5f2;--art-ink:#125e5b}
+.photo-baby{--tile-color:#abe5f5;--tile-light:#dff6fa;--art-ink:#09536a}
+.discovery-tile{
+  isolation:isolate;background:radial-gradient(ellipse at 90% 80%,var(--tile-color),transparent 62%),
+    linear-gradient(130deg,var(--tile-color),var(--tile-light) 57%);
+}
+.discovery-tile::before{
+  content:'';position:absolute;z-index:-1;left:-33%;top:-40%;width:105%;aspect-ratio:1;
+  border-radius:50%;background:#ffffff58;
+}
+.tile-photo{
+  position:absolute;bottom:-10%;right:-5%;width:94%;height:90%;object-fit:contain;
+  mix-blend-mode:multiply;transform:rotate(11deg);transition:transform .25s;
+}
+.discovery-tile:hover .tile-photo{transform:rotate(7deg) translateY(-3%)}
+.photo-cream .tile-photo{
+  right:-14%;bottom:-3%;width:94%;height:64%;object-fit:cover;object-position:50% 100%;
+  border-radius:48% 0 0 0;transform:none;
+}
+.photo-cream:hover .tile-photo{transform:translateY(-3%)}
+.photo-kajal .tile-photo{right:-11%;width:89%;height:82%}
+.photo-perfume .tile-photo{right:-10%;height:79%}
+.tile-title,.tile-detail,.tile-arrow{z-index:1}
+.tile-arrow{position:relative;background:#fff8}
+.concern-tiles .tile-title{max-width:75%}
+.chooser-tiles{grid-template-columns:repeat(9,minmax(0,1fr));gap:12px}
+.chooser-tiles .discovery-tile{padding:12px 10px;border-radius:16px}
+.chooser-tiles .tile-title{font-size:clamp(11px,1.05vw,15px);max-width:100%;text-wrap:pretty}
+.chooser-tiles .tile-arrow{width:25px;height:25px}
+.chooser-tiles .tile-arrow svg{width:14px;height:14px}
+.chooser-tiles .tile-photo{bottom:-15%;right:-13%;width:101%;height:83%}
+.chooser-tiles .photo-cream .tile-photo{bottom:-8%;width:96%;height:62%}
+.chooser-tiles .photo-body .tile-photo,.chooser-tiles .photo-baby .tile-photo{height:76%}
+.campaign-section{padding-bottom:42px}
+.chooser-section{padding-top:32px}
+.campaign-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.campaign-card{min-width:0;padding:0;color:var(--ink);text-align:left;background:none}
+.campaign-photo{
+  display:block;position:relative;isolation:isolate;aspect-ratio:1.18;overflow:hidden;
+  border-radius:18px;background:#fbdfca;
+}
+.campaign-photo img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .4s}
+.campaign-wishcare .campaign-photo{background:radial-gradient(circle at 72% 40%,#ffe7cf,#f4a378)}
+.campaign-wishcare img{mix-blend-mode:multiply;transform:rotate(-9deg) scale(.91)}
+.campaign-wishcare:hover img{transform:rotate(-6deg) scale(.95)}
+.campaign-rhythm img{object-position:center bottom;transform:scale(1.27);transform-origin:center bottom}
+.campaign-rhythm:hover img{transform:scale(1.31)}
+.campaign-oribe:hover img{transform:scale(1.04)}
+.campaign-brand{
+  position:absolute;top:0;left:0;display:block;padding:14px 23px;border-radius:0 0 22px 0;
+  color:#381e2a;background:#fff9edeb;font-family:var(--serif);font-size:clamp(18px,2vw,31px);
+}
+.campaign-caption{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:12px;font-size:clamp(12px,1.2vw,17px);font-weight:600}
+.campaign-caption svg{width:18px;height:18px;flex:none;color:var(--rose-dark)}
+#beauty-products .product-image{background:#fff0ed;border-radius:14px}
+#beauty-products .product-card:nth-child(2) .product-image{background:#ffe4cc}
+#beauty-products .product-card:nth-child(3) .product-image{background:#f0e6f9}
+#beauty-products .product-card:nth-child(4) .product-image{background:#fff1c0}
+@media(max-width:1050px){
+  .chooser-section .carousel-controls{display:flex}
+  .chooser-tiles{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;padding:4px 2px 6px}
+  .chooser-tiles::-webkit-scrollbar{display:none}
+  .chooser-tiles .discovery-tile{flex:0 0 clamp(132px,19vw,164px);scroll-snap-align:start}
+  .chooser-tiles .tile-title{font-size:14px}
+}
+@media(max-width:760px){
+  .chooser-tiles .discovery-tile{flex-basis:clamp(136px,41vw,178px)}
+  .campaign-grid{gap:9px}
+  .campaign-photo{aspect-ratio:.82;border-radius:12px}
+  .campaign-brand{font-size:14px;padding:7px 8px;border-radius:0 0 11px 0}
+  .campaign-caption{font-size:11px;line-height:1.3;align-items:start}
+  .campaign-caption svg{width:12px;height:12px}
+}
+.chooser-tiles .photo-shampoo .tile-photo{
+  width:128%;height:auto;right:-28%;bottom:-15%;mix-blend-mode:normal;
+  clip-path:polygon(43% 36%,56% 36%,56% 44%,63% 48%,67% 54%,69% 62%,69% 87%,66% 93%,35% 93%,32% 88%,32% 61%,35% 54%,39% 49%,44% 45%);
+}
